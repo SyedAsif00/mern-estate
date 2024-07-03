@@ -1,9 +1,15 @@
 import express from "express";
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
+import UserRouter from "./routes/user.route.js";
+import dotenv from "dotenv";
+
 const app = express();
-mongoose.connect(
-  "mongodb+srv://khanasfii00:asifmern@cluster0.xbuzzyc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-);
+
+dotenv.config();
+mongoose.connect(process.env.MONGO);
+
 app.listen(3000, () => {
   console.log("server is running on 3000.");
 });
+
+app.use("/api/user", UserRouter);
