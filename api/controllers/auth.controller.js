@@ -1,7 +1,14 @@
 import User from "../modals/users.modal.js";
+import bcryptjs from "bcrypt";
 export const signUp = async (req, res) => {
   const { username, email, password } = req.body;
-  const newUser = new User({ username, email, password });
-  await newUser.save();
-  res.status(201).json("user created");
+  const hashedPass = bcryptjs.hashSync(password, 10);
+  const newUser = new User({ username, email, password: hashedPass });
+
+  try {
+    await newUser.save();
+    res.status(201).json("user created successfully!!");
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
 };
