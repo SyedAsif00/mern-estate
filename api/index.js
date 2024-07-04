@@ -1,17 +1,41 @@
-import express, { json } from "express";
+import express from "express";
 import mongoose from "mongoose";
-// import UserRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.route.js";
 import dotenv from "dotenv";
+import bodyParser from "body-parser";
+
+dotenv.config();
 
 const app = express();
 
-dotenv.config();
-mongoose.connect(process.env.MONGO);
+// Middleware to parse JSON request bodies
+app.use(bodyParser.json());
 
-app.listen(3000, () => {
-  console.log("server is running on 3000.");
-});
-app.use(express.json());
-// app.use("/api/user/test", UserRouter);
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGO, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.log("MongoDB connection error:", err));
+
+// Routes
 app.use("/api/auth", authRouter);
+
+// Error-handling middleware should be the last middleware
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const errMsj = err.message || "Internal server error";
+  return res.status(statusCode).json({
+    statusCode,
+    success: false,
+    message: errMsj,
+  });
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
